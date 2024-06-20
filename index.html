@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+</head>
+<body>
+    <h1>Chatbot</h1>
+
+    <div id="chat-window"></div>
+
+    <div id="user-input">
+        <label for="category-select">Select a category:</label>
+        <select id="category-select" onchange="selectCategory()">
+	    <option value="select">Select option</option>
+            <option value="general">General</option>
+            <option value="career">Career</option>
+            <option value="organization">Organization</option>
+        </select>
+
+        <input type="text" id="user-input-text" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        var selectedCategory;
+
+        function selectCategory() {
+            selectedCategory = document.getElementById("category-select").value;
+            if (selectedCategory !== "select") {
+                document.getElementById("user-input-text").style.display = "inline";
+                document.getElementById("send-button").style.display = "inline";
+                appendMessage("You have selected the " + selectedCategory + " category.");
+            }
+        }
+
+        function sendMessage() {
+            var message = document.getElementById("user-input-text").value;
+            document.getElementById("user-input-text").value = "";
+            appendMessage("You: " + message);
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    category: selectedCategory
+                })
+            })
+            .then(response => response.json())
+            .then(data => appendMessage("Chatbot: " + data.message))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function appendMessage(message) {
+            var div = document.createElement('div');
+            div.textContent = message;
+            document.getElementById('chat-window').appendChild(div);
+        }
+    </script>
+</body>
+</html>
